@@ -19,6 +19,8 @@ $WitAdmin = "${env:ProgramFiles(x86)}\Microsoft Visual Studio 12.0\Common7\IDE\w
 & $WitAdmin exportcategories /collection:$CollectionUrl /p:$TeamProject /f:"$backupdata\bck_Categories.xml"
 & $WitAdmin exportprocessconfig /collection:$CollectionUrl /p:$TeamProject /f:"$backupdata\bck_ProcessConfiguration.xml"
 
+Write-Output "Original files downloaded."
+
 # Modify the Feature Work Item Type to create a Theme Work Item Type
 # Change name, description and child filter
 $themeWIT = New-Object XML
@@ -39,6 +41,8 @@ foreach ($x in $themeWIT.WITD.WORKITEMTYPE.FORM.Layout.Group.Column.TabGroup.Tab
 }
 $themeWIT.Save("$data\Theme.xml")
 
+Write-Output "Theme created."
+
 # Add a new Category for Themes
 $categories = New-Object XML
 $categories.Load("$backupdata\bck_Categories.xml")
@@ -52,6 +56,8 @@ $categories.DocumentElement.AppendChild($themeCat)
 
 $categories.Save("$data\Categories.xml")
 
+Write-Output "Category created."
+
 # Add a new Portfolio Backlog
 # Set the Feature's PB parent attribute as it is no longer the topmost one
 # Set the Theme's Portfolio Backlog attributes
@@ -60,7 +66,7 @@ $processconfig = New-Object XML
 $processconfig.Load("$backupdata\bck_ProcessConfiguration.xml")  
 
 $themePB = $processconfig.ProjectProcessConfiguration.PortfolioBacklogs.PortfolioBacklog | Where-Object {$_.category -eq 'Microsoft.FeatureCategory'} 
-$featurePB = $themePBcls.Clone() 
+$featurePB = $themePB.Clone() 
 $featurePB.SetAttribute("parent", "Custom.ThemeCategory") 
 $processconfig.ProjectProcessConfiguration.PortfolioBacklogs.AppendChild($featurePB) 
 $themePB.category = "Custom.ThemeCategory"  
@@ -76,7 +82,11 @@ $processconfig.ProjectProcessConfiguration.WorkItemColors.AppendChild($themecolo
 
 $processconfig.Save("$data\ProcessConfiguration.xml") 
 
+Write-Output "Process Configuration updated."
+
 # Import the new files into Team Foundation Server
 & $WitAdmin importwitd /collection:$CollectionUrl /p:$TeamProject /f:"$data\Theme.xml"
 & $WitAdmin importcategories /collection:$CollectionUrl /p:$TeamProject /f:"$data\Categories.xml"
 & $WitAdmin importprocessconfig /collection:$CollectionUrl /p:$TeamProject /f:"$data\ProcessConfiguration.xml"
+
+Write-Output "New files uploaded."
