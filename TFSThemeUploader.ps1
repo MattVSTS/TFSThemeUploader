@@ -1,5 +1,6 @@
 ﻿# TFSThemeUploader.ps1 - script for automatically creating Theme Work Item Types in an existing Team Project
 # matteo.emili@live.com || http://mattvsts.blogspot.com || @MattVSTS
+# This script works on my machine and on my lab. I decline every responsibilities for problems you might have!
 # Basic parameters
 Param(
 [String]$CollectionURL,
